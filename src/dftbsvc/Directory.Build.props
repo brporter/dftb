@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup Condition="'$(Configuration)'==''">
+    <Configuration>Debug</Configuration>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <OutputPath>..\..\out\dftbsvc\bin\$(Configuration)\$(TargetFramework)\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\out\dftbsvc\obj\$(Configuration)\$(TargetFramework)\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>

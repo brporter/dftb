@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using dftbsvc.Services;
 
 namespace dftbsvc
 {
@@ -32,6 +33,13 @@ namespace dftbsvc
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "dftbsvc", Version = "v1" });
             });
+
+            services.AddScoped<DbContext>( (serviceProvider) => new DbContext() {
+                Factory = System.Data.SqlClient.SqlClientFactory.Instance,
+                ConnectionString = Configuration["ConnectionStrings:dftb"]
+            });
+
+            services.AddScoped<IItemRepository, DbItemRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

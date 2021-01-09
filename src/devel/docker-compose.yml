@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:latest
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=P@ssw0rd!
+    volumes:
+      - ../data:/scripts/
+    command:
+      - /bin/bash
+      - -c
+      - |
+        # Launch MSSQL
+        /opt/mssql/bin/sqlservr &
+        sleep 30
+        for foo in /scripts/*.sql
+          do /opt/mssql-tools/bin/sqlcmd -U sa -P $$SA_PASSWORD -l 30 -e -i $$foo
+        done
+        sleep infinity
+  storage:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
