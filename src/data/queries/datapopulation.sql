@@ -16,7 +16,7 @@ INSERT INTO [UserDefinitions].[Account] (AccountId, EmailAddress) VALUES ('00000
 INSERT INTO [UserDefinitions].[Account] (AccountId, EmailAddress) VALUES (@AccountID, 'bryan@bryanporter.com')
 SELECT * FROM [UserDefinitions].[Account]
 
-INSERT INTO [UserData].[List] (ListId, AccountId) VALUES (@ListID, @AccountID)
+INSERT INTO [UserData].[List] (ListId, Name) VALUES (@ListID, 'Some List')
 SELECT * FROM [UserData].[List]
 
 INSERT INTO [UserData].[ItemTemplate] (AccountId, ItemTemplateId, Name, ImageUrl, UPC) VALUES ('00000000-0000-0000-0000-000000000000', @ItemTemplateID_1, 'Oreos', '', '044000064969')
@@ -43,3 +43,6 @@ SELECT Item.*
 FROM
     [UserData].[Item] Item
     INNER JOIN [UserData].[List] List ON List.ListId = Item.ListId AND List.AccountId = '1a099f28-920d-45e5-aead-4645b1aac94d'
+
+SELECT * FROM [Journal].[Item]
+SELECT * FROM [UserData].[Item]

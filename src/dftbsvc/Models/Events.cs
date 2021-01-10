@@ -36,6 +36,7 @@ namespace dftbsvc.Models
     {
         public Guid ItemId { get; init; }
         public Guid ItemTemplateId { get; init; }
+        public Guid ListId { get; init; }
         public int DemandQuantity { get; init; }
         public int AcquiredQuantity { get; init; }
     }

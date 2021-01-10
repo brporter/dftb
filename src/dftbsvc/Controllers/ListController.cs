@@ -15,6 +15,7 @@ namespace dftbsvc.Controllers
     {
         readonly ILogger<ListController> _logger;
         readonly IItemRepository _repository;
+        readonly IEventProcessor _eventProcessor;
 
         public ListController(ILogger<ListController> logger, IItemRepository itemRepository)
         {
@@ -42,12 +43,13 @@ namespace dftbsvc.Controllers
             return await _repository.GetItemTemplatesAsync(accountId, since);
         }
 
-        [HttpPost]
-        public async Task AddItemAsync(Guid accountId, Guid itemTemplateId, int demandQuantity, int acquiredQuantity)
+        [HttpPost("addItem")]
+        public async Task AddItemAsync(Guid accountId, Guid itemTemplateId, Guid listId, int demandQuantity, int acquiredQuantity)
         {
             var itemEvent = new ItemEvent() {
                 JournalId = Guid.NewGuid(), // TODO: replace with sequential ID generator
                 ItemId = Guid.NewGuid(), // TODO: replace with sequential ID generator
+                ListId = listId,
                 ItemTemplateId = itemTemplateId,
                 DemandQuantity = demandQuantity,
                 AcquiredQuantity = acquiredQuantity,

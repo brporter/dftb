@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using dftbsvc.Services;
+using dftbsvc.Models;
 
 namespace dftbsvc
 {
@@ -33,6 +34,17 @@ namespace dftbsvc
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "dftbsvc", Version = "v1" });
             });
+
+            services.AddSingleton<IQueueService<ItemEvent>, AzureItemEventQueueService>(
+                (_) => new AzureItemEventQueueService(Configuration["ConnectionStrings:storage"])
+            );
+
+            services.AddSingleton<IQueueService<ItemTemplateEvent>, AzureItemTemplateEventQueueService>(
+                (_) => new AzureItemTemplateEventQueueService(Configuration["ConnectionStrings:storage"])
+            );
+
+            services.AddSingleton<ICommandGenerator, CommandGenerator>();
+            services.AddSingleton<IEventProcessor, EventProcessor>();
 
             services.AddScoped<DbContext>( (serviceProvider) => new DbContext() {
                 Factory = System.Data.SqlClient.SqlClientFactory.Instance,
