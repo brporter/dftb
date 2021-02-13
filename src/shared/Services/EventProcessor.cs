@@ -32,20 +32,19 @@ namespace dftbsvc.Services
 
                         foreach (var queueItem in queueItems)
                         {
-                            var command = _generator.GenerateCommand<T>(repository, queueItem.Item);
-                            
-                            await command.ExecuteAsync(queueItem.Item, async (item, success) => {
-                                if (success)
+                            try 
+                            {
+                                var command = _generator.GenerateCommand<T>(repository, queueItem.Item);
+                                
+                                if (await command.ExecuteAsync(queueItem.Item))
                                 {
                                     await queueService.DeleteItemAsync(queueItem);
                                 }
-                                else
-                                {
-                                    await queueService.EnqueueAsync(queueItem.Item);
-                                }
-                            });
+                            }
+                            catch (System.Data.Common.DbException)
+                            { }
                         }
-                    } 
+                    }  
                     finally 
                     {
                         _resetEvent.Set();

@@ -6,4 +6,4 @@ This directory contains a Docker Compose definition for standing up local resour
 
 The SQL Server instance is auto-initialized with the needed database on startup, but this database is not persisted outside the container and will be destroyed when the container is removed.
 
-Scripts to initialize the SQL Server instance are found in the data/ directory.
+Scripts to initialize the SQL Server instance are found in the ../data/ directory.

@@ -1,14 +1,8 @@
 DECLARE @AccountID UNIQUEIDENTIFIER
-DECLARE @ListID UNIQUEIDENTIFIER
-DECLARE @ItemTemplateID_1 UNIQUEIDENTIFIER
-DECLARE @ItemTemplateID_2 UNIQUEIDENTIFIER
 DECLARE @ItemID_1 UNIQUEIDENTIFIER
 DECLARE @ItemID_2 UNIQUEIDENTIFIER
 
 SET @AccountID = NEWID()
-SET @ListID = NEWID()
-SET @ItemTemplateID_1 = NEWID()
-SET @ItemTemplateID_2 = NEWID()
 SET @ItemID_1 = NEWID()
 SET @ItemID_2 = NEWID()
 
@@ -16,8 +10,17 @@ INSERT INTO [UserDefinitions].[Account] (AccountId, EmailAddress) VALUES ('00000
 INSERT INTO [UserDefinitions].[Account] (AccountId, EmailAddress) VALUES (@AccountID, 'bryan@bryanporter.com')
 SELECT * FROM [UserDefinitions].[Account]
 
+DECLARE @ListID UNIQUEIDENTIFIER
+SET @ListID = NEWID()
 INSERT INTO [UserData].[List] (ListId, Name) VALUES (@ListID, 'Some List')
 SELECT * FROM [UserData].[List]
+
+INSERT INTO [UserData].[ListAssignment] (ListId, AccountId) VALUES (@ListID, @AccountID)
+
+DECLARE @ItemTemplateID_1 UNIQUEIDENTIFIER
+DECLARE @ItemTemplateID_2 UNIQUEIDENTIFIER
+SET @ItemTemplateID_1 = NEWID()
+SET @ItemTemplateID_2 = NEWID()
 
 INSERT INTO [UserData].[ItemTemplate] (AccountId, ItemTemplateId, Name, ImageUrl, UPC) VALUES ('00000000-0000-0000-0000-000000000000', @ItemTemplateID_1, 'Oreos', '', '044000064969')
 INSERT INTO [UserData].[ItemTemplate] (AccountId, ItemTemplateId, Name, ImageUrl, UPC) VALUES (@AccountID, @ItemTemplateID_2, 'Asparagus', '', '')
@@ -46,3 +49,16 @@ FROM
 
 SELECT * FROM [Journal].[Item]
 SELECT * FROM [UserData].[Item]
+
+
+SELECT * FROM [UserDefinitions].[Account]
+SELECT * FROM [UserData].[List]
+SELECT * FROM [UserData].[ItemTemplate]
+
+SELECT * FROM [Journal].[Item]
+SELECT * FROM [Journal].[ItemTemplate]
+SELECT * FROM [UserData].[Item]
+
+DELETE FROM [Journal].[Item]
+DELETE FROM [Journal].[ItemTemplate]
+DELETE FROM [UserData].[Item]

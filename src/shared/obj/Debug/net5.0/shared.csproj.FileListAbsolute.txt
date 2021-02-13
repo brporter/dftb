@@ -1,0 +1,12 @@
+/Users/brporter/Projects/dftb/src/shared/obj/Debug/net5.0/shared.GeneratedMSBuildEditorConfig.editorconfig
+/Users/brporter/Projects/dftb/src/shared/obj/Debug/net5.0/shared.AssemblyInfoInputs.cache
+/Users/brporter/Projects/dftb/src/shared/obj/Debug/net5.0/shared.AssemblyInfo.cs
+/Users/brporter/Projects/dftb/src/shared/obj/Debug/net5.0/shared.csproj.CoreCompileInputs.cache
+/Users/brporter/Projects/dftb/src/shared/obj/Debug/net5.0/shared.csprojAssemblyReference.cache
+/Users/brporter/Projects/dftb/src/shared/bin/Debug/net5.0/shared.deps.json
+/Users/brporter/Projects/dftb/src/shared/bin/Debug/net5.0/shared.dll
+/Users/brporter/Projects/dftb/src/shared/bin/Debug/net5.0/ref/shared.dll
+/Users/brporter/Projects/dftb/src/shared/bin/Debug/net5.0/shared.pdb
+/Users/brporter/Projects/dftb/src/shared/obj/Debug/net5.0/shared.dll
+/Users/brporter/Projects/dftb/src/shared/obj/Debug/net5.0/ref/shared.dll
+/Users/brporter/Projects/dftb/src/shared/obj/Debug/net5.0/shared.pdb

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Azure.Storage.Queues;
 using dftbsvc.Models;
 
-namespace dftbsvc
+namespace dftbsvc.Services
 {
     public interface IQueueService<T>
     {
@@ -48,7 +48,7 @@ namespace dftbsvc
 
         public async Task<IEnumerable<IQueueItem<T>>> DequeueAsync()
         {
-            var messages = await Client.ReceiveMessagesAsync();
+            var messages = await Client.ReceiveMessagesAsync(32);
             var items = new List<IQueueItem<T>>();
 
             return messages.Value.AsParallel().Select(

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using dftbsvc.Services;
@@ -33,7 +34,38 @@ namespace dftbsvc
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "dftbsvc", Version = "v1" });
+
+                c.AddSecurityDefinition(
+                    "Bearer",
+                    new OpenApiSecurityScheme {
+                        In = ParameterLocation.Header,
+                        Description = "JWT with Bearer",
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.ApiKey
+                    }
+                );
+
+                c.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement()
+                    {
+                        {
+                            new OpenApiSecurityScheme() {
+                                Reference = new OpenApiReference() {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+                        }
+                    }
+                );
             });
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearerConfiguration(
+                    Configuration["Jwt:Issuer"],
+                    Configuration["Jwt:Audience"]
+                );
 
             services.AddSingleton<IQueueService<ItemEvent>, AzureItemEventQueueService>(
                 (_) => new AzureItemEventQueueService(Configuration["ConnectionStrings:storage"])
@@ -44,7 +76,6 @@ namespace dftbsvc
             );
 
             services.AddSingleton<ICommandGenerator, CommandGenerator>();
-            services.AddSingleton<IEventProcessor, EventProcessor>();
 
             services.AddScoped<DbContext>( (serviceProvider) => new DbContext() {
                 Factory = System.Data.SqlClient.SqlClientFactory.Instance,

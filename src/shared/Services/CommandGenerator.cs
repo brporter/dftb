@@ -7,7 +7,7 @@ namespace dftbsvc.Services
 {
     public interface ICommand<T>
     {
-        Task ExecuteAsync(T item, Action<T, bool> postAction);
+        Task<bool> ExecuteAsync(T item);
     }
 
     public interface ICommandGenerator
@@ -24,55 +24,55 @@ namespace dftbsvc.Services
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
         protected IItemRepository Repository => _repository;
-        public abstract Task ExecuteAsync(T item, Action<T, bool> postAction);
+        public abstract Task<bool> ExecuteAsync(T item);
     }
 
     public class ItemCommand
-        : Command<ItemEvent>
+        : MapCommand<ItemEvent>
     {
         public ItemCommand(IItemRepository repository)
-            : base(repository) 
+            : base(
+                (item) => repository.CreateItemAsync(item),
+                (item) => repository.UpdateItemAsync(item),
+                (item) => repository.DeleteItemAsync(item)
+            )
         { }
-
-        public override async Task ExecuteAsync(ItemEvent item, Action<ItemEvent, bool> postAction)
-        {
-            switch (item.Operation)
-            {
-                case Operation.Create:
-                    await Repository.CreateItemAsync(item, postAction).ConfigureAwait(false);
-                    break;
-                case Operation.Delete:
-                    await Repository.DeleteItemAsync(item, postAction).ConfigureAwait(false);
-                    break;
-                case Operation.Update:
-                    await Repository.UpdateItemAsync(item, postAction).ConfigureAwait(false);
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
     }
 
     public class ItemTemplateCommand
-        : Command<ItemTemplateEvent>
+        : MapCommand<ItemTemplateEvent>
     {
         public ItemTemplateCommand(IItemRepository repository)
-            : base(repository)
+            : base(
+                (itemTemplate) => repository.CreateItemTemplateAsync(itemTemplate),
+                (itemTemplate) => repository.UpdateItemTemplateAsync(itemTemplate),
+                (itemTemplate) => repository.DeleteItemTemplateAsync(itemTemplate)
+            )
         { }
+    }
 
-        public override async Task ExecuteAsync(ItemTemplateEvent item, Action<ItemTemplateEvent, bool> postAction)
+    public class MapCommand<T>
+        : ICommand<T> where T : Event
+    {
+        readonly Func<T, Task<bool>>[] commands = new Func<T, Task<bool>>[3];
+
+        public MapCommand(Func<T, Task<bool>> create, Func<T, Task<bool>> update, Func<T, Task<bool>> delete)
         {
+            commands[0] = create;
+            commands[1] = update;
+            commands[2] = delete;
+        }
+
+        public async Task<bool> ExecuteAsync(T item)
+        {            
             switch (item.Operation)
             {
                 case Operation.Create:
-                    await Repository.CreateItemTemplateAsync(item, postAction).ConfigureAwait(false);
-                    break;
-                case Operation.Delete:
-                    await Repository.DeleteItemTemplateAsync(item, postAction).ConfigureAwait(false);
-                    break;
+                    return await commands[0](item).ConfigureAwait(false);
                 case Operation.Update:
-                    await Repository.UpdateItemTemplateAsync(item, postAction).ConfigureAwait(false);
-                    break;
+                    return await commands[1](item).ConfigureAwait(false);
+                case Operation.Delete:
+                    return await commands[2](item).ConfigureAwait(false);
                 default:
                     throw new InvalidOperationException();
             }

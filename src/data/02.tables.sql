@@ -262,7 +262,7 @@ CREATE PROCEDURE [UserData].[CreateItem]
     @AcquiredQuantity INT
 )
 AS
-    SET NOCOUNT ON;
+    SET NOCOUNT OFF;
     SET XACT_ABORT ON;
 
     INSERT INTO [UserData].[Item]
@@ -280,7 +280,7 @@ CREATE PROCEDURE [UserData].[UpdateItem]
     @AcquiredQuantity INT
 )
 AS
-    SET NOCOUNT ON;
+    SET NOCOUNT OFF;
     SET XACT_ABORT ON;
 
     UPDATE [UserData].[Item]   
@@ -298,7 +298,7 @@ CREATE PROCEDURE [UserData].[DeleteItem]
     @ItemId UNIQUEIDENTIFIER
 )
 AS
-    SET NOCOUNT ON;
+    SET NOCOUNT OFF;
     SET XACT_ABORT ON;
 
     UPDATE [UserData].[Item]   

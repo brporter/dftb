@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using dftbsvc.Models;
 using dftbsvc.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
 namespace dftbsvc.Controllers
@@ -15,7 +16,6 @@ namespace dftbsvc.Controllers
     {
         readonly ILogger<ListController> _logger;
         readonly IItemRepository _repository;
-        readonly IEventProcessor _eventProcessor;
 
         public ListController(ILogger<ListController> logger, IItemRepository itemRepository)
         {
@@ -24,6 +24,7 @@ namespace dftbsvc.Controllers
         }
 
         [HttpGet("itemlist")]
+        [Authorize]
         public async Task<ItemList> GetItemListAsync(Guid accountId)
         {
             var itemList = await _repository.GetItemListAsync(accountId);
@@ -32,23 +33,27 @@ namespace dftbsvc.Controllers
         }
 
         [HttpGet("systemItemTemplates")]
+        [Authorize]
         public async Task<IEnumerable<ItemTemplate>> GetSystemItemTemplatesAsync(DateTime since)
         {
             return await _repository.GetItemTemplatesAsync(Guid.Empty, since);
         }
 
         [HttpGet("itemTemplates")]
+        [Authorize]
         public async Task<IEnumerable<ItemTemplate>> GetItemTemplatesAsync(Guid accountId, DateTime since)
         {
             return await _repository.GetItemTemplatesAsync(accountId, since);
         }
 
         [HttpPost("addItem")]
+        [Authorize]
         public async Task AddItemAsync(Guid accountId, Guid itemTemplateId, Guid listId, int demandQuantity, int acquiredQuantity)
         {
-            var itemEvent = new ItemEvent() {
-                JournalId = Guid.NewGuid(), // TODO: replace with sequential ID generator
-                ItemId = Guid.NewGuid(), // TODO: replace with sequential ID generator
+            var itemEvent = new ItemEvent() 
+            {
+                JournalId = IdGenerator.NewId(),
+                ItemId = IdGenerator.NewId(), 
                 ListId = listId,
                 ItemTemplateId = itemTemplateId,
                 DemandQuantity = demandQuantity,
