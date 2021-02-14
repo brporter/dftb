@@ -2,7 +2,7 @@
   <MonoDevelop.Ide.ItemProperties.dftbsvc PreferredExecutionTarget="/Applications/Microsoft Edge.app" />
   <MonoDevelop.Ide.Workbench ActiveDocument="eventproc/Program.cs">
     <Files>
-      <File FileName="eventproc/Program.cs" Line="17" Column="10" />
+      <File FileName="eventproc/Program.cs" Line="91" Column="40" />
       <File FileName="shared/Services/QueueService.cs" Line="97" Column="1" />
       <File FileName="eventproc/appsettings.Development.json" Line="1" Column="1" />
     </Files>
@@ -26,12 +26,7 @@
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/brporter/Projects/dftb/src/eventproc/Program.cs" relfile="eventproc/Program.cs" line="85" column="1" />
-      <Breakpoint file="/Users/brporter/Projects/dftb/src/eventproc/Program.cs" relfile="eventproc/Program.cs" line="89" column="1" />
-      <Breakpoint file="/Users/brporter/Projects/dftb/src/eventproc/Program.cs" relfile="eventproc/Program.cs" line="32" column="1" />
-      <Breakpoint file="/Users/brporter/Projects/dftb/src/eventproc/Program.cs" relfile="eventproc/Program.cs" line="24" column="1" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />
 </Properties>
