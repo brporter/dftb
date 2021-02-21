@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace dftbsvc.Services
 {
@@ -13,46 +15,44 @@ namespace dftbsvc.Services
         : IEventProcessor
     {
         readonly ICommandGenerator _generator;
-        readonly AutoResetEvent _resetEvent = new AutoResetEvent(true);
+        readonly ILogger _log;
+        readonly IApplicationTelemetry _telemetry;
 
-        public EventProcessor(ICommandGenerator commandGenerator)
+        public EventProcessor(ILogger<EventProcessor> log, ICommandGenerator commandGenerator, IApplicationTelemetry telemetry)
         {
+            _log = log ?? throw new ArgumentNullException(nameof(log));
             _generator = commandGenerator ?? throw new ArgumentNullException(nameof(commandGenerator));
+            _telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
         }
 
-        public Task ProcessEventsAsync<T>(IItemRepository repository, IQueueService<T> queueService)
+        public async Task ProcessEventsAsync<T>(IItemRepository repository, IQueueService<T> queueService)
         {
-            if (_resetEvent.WaitOne(0))
+            using (_log.BeginScope("Processing [{0}] Queue Items", queueService.Name))
             {
-                // process events
-                return Task.Run( async () => {
-                    try 
-                    {
-                        var queueItems = await queueService.DequeueAsync();
+                var queueItems = await queueService.DequeueAsync();
 
-                        foreach (var queueItem in queueItems)
+                _telemetry.TrackQueueItems(QueueItemOperation.Retrieved, queueService.Name, queueItems.Count());
+
+                foreach (var queueItem in queueItems)
+                {
+                    try
+                    {
+                        var command = _generator.GenerateCommand(repository, queueItem.Item);
+
+                        if (await command.ExecuteAsync(queueItem.Item))
                         {
-                            try 
-                            {
-                                var command = _generator.GenerateCommand<T>(repository, queueItem.Item);
-                                
-                                if (await command.ExecuteAsync(queueItem.Item))
-                                {
-                                    await queueService.DeleteItemAsync(queueItem);
-                                }
-                            }
-                            catch (System.Data.Common.DbException)
-                            { }
-                        }
-                    }  
-                    finally 
-                    {
-                        _resetEvent.Set();
-                    }
-                });
-            }
+                            await queueService.DeleteItemAsync(queueItem);
 
-            return Task.CompletedTask;
+                            _telemetry.TrackQueueItems(QueueItemOperation.Processed, queueService.Name);
+                        }
+                    }
+                    catch (System.Data.Common.DbException dbe)
+                    {
+                        _log.LogError(dbe, "Queue Item Command Execution Failed");
+                        _telemetry.TrackQueueItems(QueueItemOperation.Failed, queueService.Name);
+                    }
+                }
+            }
         }
     }
 }

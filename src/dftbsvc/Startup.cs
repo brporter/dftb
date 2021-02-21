@@ -63,7 +63,7 @@ namespace dftbsvc
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearerConfiguration(
-                    Configuration["Jwt:Issuer"],
+                    Configuration["Jwt:Authority"],
                     Configuration["Jwt:Audience"]
                 );
 
@@ -99,6 +99,7 @@ namespace dftbsvc
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

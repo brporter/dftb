@@ -12,6 +12,7 @@ namespace dftbsvc.Services
 {
     public interface IQueueService<T>
     {
+        string Name { get; }
         Task EnqueueAsync(T item);
         Task<IEnumerable<IQueueItem<T>>> DequeueAsync();
 
@@ -21,6 +22,8 @@ namespace dftbsvc.Services
     public abstract class AzureQueueService<T>
         : IQueueService<T>
     {
+        const int MaxMessages = 32;
+
         static readonly JsonSerializerOptions s_serializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
         readonly QueueServiceClient _serviceClient;
@@ -32,11 +35,16 @@ namespace dftbsvc.Services
                 throw new ArgumentException(nameof(connectionString));
 
             _serviceClient = new QueueServiceClient(connectionString);
+
+            Name = queueName;
+
             _client = _serviceClient.GetQueueClient(queueName);
             _client.CreateIfNotExists();
         }
 
         private QueueClient Client => _client;
+
+        public string Name { get; }
 
         public async Task<bool> DeleteItemAsync(IQueueItem<T> item)
         {
@@ -48,7 +56,7 @@ namespace dftbsvc.Services
 
         public async Task<IEnumerable<IQueueItem<T>>> DequeueAsync()
         {
-            var messages = await Client.ReceiveMessagesAsync(32);
+            var messages = await Client.ReceiveMessagesAsync(MaxMessages);
             var items = new List<IQueueItem<T>>();
 
             return messages.Value.AsParallel().Select(

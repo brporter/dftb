@@ -15,18 +15,16 @@ namespace dftbsvc
         const string TokenExpiredHeader = "x-token-expired";
         const string TokenExpiredMessageFormat = "Token expired on {0:o}";
 
-        public static AuthenticationBuilder AddJwtBearerConfiguration(this AuthenticationBuilder builder, string issuer, string audience)
+        public static AuthenticationBuilder AddJwtBearerConfiguration(this AuthenticationBuilder builder, string authority, string audience)
         {
-            return builder.AddJwtBearer(async options => {
-                options.Authority = issuer;
+            return builder.AddJwtBearer(options => {
+                options.Authority = authority;
                 options.Audience = audience;
-                options.TokenValidationParameters = new TokenValidationParameters() {
-                    ClockSkew = new System.TimeSpan(0, 0, 30)
-                };
 
-                options.Configuration = await OpenIdConnectConfigurationRetriever.GetAsync(
-                    "https://dontforgetthebroccoli.b2clogin.com/dontforgetthebroccoli.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=B2C_1_DFTB", 
-                    System.Threading.CancellationToken.None);
+                options.TokenValidationParameters = new TokenValidationParameters() {
+                    ClockSkew = new System.TimeSpan(0, 0, 30),
+                    ValidAudience = audience
+                };
 
                 options.Events = new JwtBearerEvents()
                 {

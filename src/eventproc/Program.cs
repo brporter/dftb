@@ -6,6 +6,8 @@ using dftbsvc.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.ApplicationInsights;
 
 namespace dftb.EventProc
 {
@@ -48,6 +50,9 @@ namespace dftb.EventProc
                     services.AddSingleton<IItemRepository, DbItemRepository>();
 
                     services.AddSingleton<IEventProcessor, EventProcessor>();
+
+                    services.AddSingleton<IApplicationTelemetry, AzureAppInsightsTelemetry>();
+                    services.AddApplicationInsightsTelemetryWorkerService();
                 });
     }
 
@@ -60,13 +65,18 @@ namespace dftb.EventProc
         readonly IItemRepository _itemRepository;
         readonly IHostApplicationLifetime _hal;
 
+        readonly ILogger _log;
+
         public EventWorker(
+            ILogger<EventWorker> log,
             IEventProcessor processor,
             IItemRepository itemRepository,
             IQueueService<ItemEvent> itemEventQueueService,
             IQueueService<ItemTemplateEvent> itemTemplateEventQueueService,
             IHostApplicationLifetime hal)
         {
+            _log = log;
+
             _itemEventQueueService = itemEventQueueService;
             _itemTemplateEventQueueService = itemTemplateEventQueueService;
 
@@ -78,18 +88,34 @@ namespace dftb.EventProc
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return Task.Run(async () =>
+            using (_log.BeginScope("Starting EventWorker"))
             {
-                // TODO: need to support inter-processing cancellation
+                return Task.Run(async () =>
+                {
+                    // TODO: need to support inter-processing cancellation
 
-                if (!stoppingToken.IsCancellationRequested)
-                    await _processor.ProcessEventsAsync(_itemRepository, _itemEventQueueService);
+                    using (_log.BeginScope("Processing Queue Events"))
+                    {
+                        if (!stoppingToken.IsCancellationRequested)
+                            await _processor.ProcessEventsAsync(_itemRepository, _itemEventQueueService);
+                        else
+                        {
+                            _log.LogWarning("Cancellation requested prior to processing the item event queue.");
+                            return;
+                        }
 
-                if (!stoppingToken.IsCancellationRequested)
-                    await _processor.ProcessEventsAsync(_itemRepository, _itemTemplateEventQueueService);
+                        if (!stoppingToken.IsCancellationRequested)
+                            await _processor.ProcessEventsAsync(_itemRepository, _itemTemplateEventQueueService);
+                        else
+                        {
+                            _log.LogWarning("Cancellation requested prior to processing the item template event queue.");
+                            return;
+                        }
+                    }
 
-                _hal.StopApplication();
-            });
+                    _hal.StopApplication();
+                });
+            }
         }
     }
 }
