@@ -23,7 +23,7 @@ namespace dftb.EventProc
                     Enum.GetName(operation)
                 ));
 
-            m.TrackValue(count, count);
+            m.TrackValue(count, queueName);
         }
 
         public void TrackQueueItems(QueueItemOperation operation, string queueName)

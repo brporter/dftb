@@ -96,6 +96,8 @@ namespace dftb.EventProc
 
                     using (_log.BeginScope("Processing Queue Events"))
                     {
+                        _log.LogInformation("Processing item events.");
+
                         if (!stoppingToken.IsCancellationRequested)
                             await _processor.ProcessEventsAsync(_itemRepository, _itemEventQueueService);
                         else
@@ -103,6 +105,8 @@ namespace dftb.EventProc
                             _log.LogWarning("Cancellation requested prior to processing the item event queue.");
                             return;
                         }
+
+                        _log.LogInformation("Processing item template events.");
 
                         if (!stoppingToken.IsCancellationRequested)
                             await _processor.ProcessEventsAsync(_itemRepository, _itemTemplateEventQueueService);

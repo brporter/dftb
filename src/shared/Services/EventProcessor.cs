@@ -30,7 +30,9 @@ namespace dftbsvc.Services
             using (_log.BeginScope("Processing [{0}] Queue Items", queueService.Name))
             {
                 var queueItems = await queueService.DequeueAsync();
+                var itemCount = queueItems.Count();
 
+                _log.LogInformation("Retrieved [{0}] items from the [{1}] queue for processing.", itemCount, queueService.Name);
                 _telemetry.TrackQueueItems(QueueItemOperation.Retrieved, queueService.Name, queueItems.Count());
 
                 foreach (var queueItem in queueItems)
